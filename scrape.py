@@ -18,6 +18,7 @@ import urllib2
 from bs4 import BeautifulSoup
 import urlparse
 import time
+import csv
 
 #-------------------------------------------------------------#
 # 2. Define Functions
@@ -57,8 +58,8 @@ def get_pages(url):
     links2 = []
     for i in y:
         x = process(i)
-        links2=links2+x
-    links2=links2+y
+        links2 = links2+x
+    links2 = links2+y
     
     # Remove duplicates
     links2 = list(set(links2))
@@ -67,25 +68,6 @@ def get_pages(url):
     x = [s for s in links2 if s.startswith(url) == True]
 
     return x
-
-'''
-There are many ways to find words within a soup/url html.
-Here are a few options. Will need to figure out which is quicker
-
-# Option 1: Find number of occurences using soup object
-odie = soup.find_all(text=lambda x: x and "learn" in x.lower())
-han = len(odie)
-
-# Option 2: Get the text from the  soup object and search it
-text = soup.get_text()
-
-# Option 3: Get the text directly using requests
-r = requests.get(url)
-if 'Welcome' in r.content:
-    print r.content
-    
-# I'll use option 1 here for now
-'''   
 
 # This function counts the number of occurences of keywords on each page in links
 def count_keys(links,key):
@@ -137,13 +119,13 @@ def main_function(url,key,name):
 # Load data
 d = pd.read_csv("./data/SIE-IMPAQ-URL-05252017.csv")
 d.columns = map(str.lower, d.columns)
-keywords = ["teamwork","teamstepps","team training","crew resource management", "and"]
+df = d[0:1]
 
-df = d[0:5]
-
-#url = df["website"][1]
-#name = df["hospital name"][1]
-#main_function(url,keywords,name)
+# Load keywords
+with open('./data/keywords.csv', 'rb') as f:
+    reader = csv.reader(f)
+    key_list = list(reader)
+keywords = [val for sublist in key_list for val in sublist]
 
 # Loop over this    
 for url, name in zip(df["website"], df["hospital name"]):
