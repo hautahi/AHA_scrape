@@ -5,6 +5,10 @@ Also, only the Learn in http://www.abbgen.net/ that is text that can be read. SO
 and not 5 on the page.
 Author: Hautahi
 Date: 28 June 2017
+
+Bugs:
+1. The "invalid schema" error pops up with the : after the .com. This repeatable (abingtonhealth)
+2. The handshake failure error. Looks to only happen sometimes. Need to figure out how to use exceptions to get around it
 '''
 
 #-------------------------------------------------------------#
@@ -20,31 +24,24 @@ import urlparse
 import time
 import csv
 import unicodedata
+import requests
+from time import sleep
+from random import uniform
+from warnings import warn
 
 #-------------------------------------------------------------#
 # 2. Define Functions
 #-------------------------------------------------------------#
 
 # This function creates a soup object
-def make_soup(url):
-    html = urllib2.urlopen(url).read()
-    #req = urllib2.Request(url, headers={ 'User-Agent': 'Mozilla/5.0' })
-    #html = urllib2.urlopen(req).read()    
+def make_soup(url): 
+    #sleep(uniform(0,1)) 
+    response = requests.get(url)
+    # Throw a warning for non-200 status codes
+    if response.status_code != 200:
+        warn('Status code: {}'.format(response.status_code))
+    html=response.text
     return BeautifulSoup(html, "lxml")
-
-# This function returns the index places of "a" in the string "text"
-def get_index(text, a):
-    return [i for i,x in enumerate(text.split()) if x==a]
-    
-# This function a list of sentences of n words around the "term" in the "text" string
-def get_sentences(text,term,n):
-    ind = get_index(text,term)
-    sentence_list = [text.split()[max(0,i-n):i+n] for i in ind]
-    sentences = [' '.join(x) for x in sentence_list]
-    
-    # Remove unicode
-    sentences1 = [unicodedata.normalize('NFKD',x).encode('ascii','ignore') for x in sentences]
-    return sentences1
 
 # This functions gets all links in webpage
 def process(url):
@@ -52,7 +49,6 @@ def process(url):
     soup = make_soup(url)
     
     # Get all links on page
-    # odie = [link.get('href') for link in soup.find_all('a',href=re.compile(''))]
     odie = [urlparse.urljoin(url,tag['href']) for tag in soup.findAll('a', href=True)]
     
     # Remove duplicates
@@ -72,17 +68,32 @@ def get_pages(url):
     # Get links on each subpage
     links2 = []
     for i in y:
+        print(i)
         x = process(i)
         links2 = links2+x
-    links2 = links2+y
+    links = links2+y
     
     # Remove duplicates
-    links2 = list(set(links2))
+    links = list(set(links))
     
     # Remove outside links that don't start with url
-    x = [s for s in links2 if s.startswith(url) == True]
+    x = [s for s in links if s.startswith(url) == True]
 
     return x
+
+# This function returns the index places of "a" in the string "text"
+def get_index(text, a):
+    return [i for i,x in enumerate(text.split()) if x==a]
+    
+# This function a list of sentences of n words around the "term" in the "text" string
+def get_sentences(text,term,n):
+    ind = get_index(text,term)
+    sentence_list = [text.split()[max(0,i-n):i+n] for i in ind]
+    sentences = [' '.join(x) for x in sentence_list]
+    
+    # Remove unicode
+    sentences1 = [unicodedata.normalize('NFKD',x).encode('ascii','ignore') for x in sentences]
+    return sentences1
 
 # This function counts the number of occurences of keywords on each page in links
 # It also returns the relevant sentences
@@ -103,7 +114,6 @@ def count_keys(links,key,n):
             text=soup.get_text()
             
             # Get word count
-            #count=text.lower().count(word)
             ind = get_index(text,word)
             count = len(ind)
             COUNT.append(count)
@@ -116,7 +126,7 @@ def count_keys(links,key,n):
         Totalsent.append(SENT)
     
     # Save counts to a dataframe
-    headers = ['url']+key
+    headers = ['url'] + key
     d = pd.DataFrame(Totalcount,columns=headers)
     
     # Save sentences to a dataframe
@@ -135,9 +145,17 @@ def main_function(url,key,name,n):
     '''
     start_time = time.time() 
     
+    # Get all subpage links and save
+    print('Retrieving Links...')
     links = get_pages(url)
+    dlinks = pd.DataFrame(links,columns=["sub_pages"])
+    dlinks.insert(0,'hospital',name)
+    dlinks.insert(1,'hospital_website',url)
+    dlinks.to_csv('./output/'+name+'_subpagelinks.csv',index=False, encoding='utf-8')
     
-    #links = links[0:20]  
+    # Cout keywords in subpages
+    print('Counting keywords...')
+    links = links[0:20]  
     d = count_keys(links,key,n)
     d.insert(0,'hospital',name)
     d.insert(1,'hospital_website',url)
@@ -152,7 +170,7 @@ def main_function(url,key,name,n):
 # Load data
 d = pd.read_csv("./data/SIE-IMPAQ-URL-05252017.csv")
 d.columns = map(str.lower, d.columns)
-df = d[0:5]
+df = d[5:8]
 
 # Load keywords
 with open('./data/keywords.csv', 'rb') as f:
