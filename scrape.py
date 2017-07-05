@@ -1,14 +1,26 @@
 '''
-This program scrapes ...
-Note can only take text not images. SO the welcome in http://www.abbgen.net/ cannot be read
-Also, only the Learn in http://www.abbgen.net/ that is text that can be read. SO it picks up 3
-and not 5 on the page.
-Author: Hautahi
+This program scrapes and counts keywords from US hospital websites.
+Main output is a csv file for each hospital with word counts and contextual sentences
+
+Author: hautahi
 Date: 28 June 2017
 
+Limitations:
+Can only take text not images. So the "welcome" in http://www.abbgen.net/ cannot be read
+Also, only the "Learn" in http://www.abbgen.net/ that is text that can be read. So it picks up 3
+rather than 5
+
 Bugs:
-1. The "invalid schema" error pops up with the : after the .com. This repeatable (abingtonhealth)
-2. The handshake failure error. Looks to only happen sometimes. Need to figure out how to use exceptions to get around it
+
+I think fixed:
+1. The "invalid schema" error pops up with the : after the .com. This is repeatable (abingtonhealth)
+2. requests.exceptions.ConnectionError for webpage http://www.keepingyouwell.com/FindaDoctor.aspx
+
+Still to be fixed:
+1. The handshake failure error. Looks to only happen sometimes. Need to figure out how to use exceptions to get around it
+2. Connection error Errno 11004
+3. When scraping, I think it excludes some tags. Like image descriptions and maybe stuff in the head.
+
 '''
 
 #-------------------------------------------------------------#
@@ -18,75 +30,105 @@ Bugs:
 print "Code is Working..."
 
 import pandas as pd
-import urllib2
 from bs4 import BeautifulSoup
 import urlparse
 import time
 import csv
 import unicodedata
 import requests
-from time import sleep
-from random import uniform
-from warnings import warn
+#from time import sleep
+#from random import uniform
+import sys
 
 #-------------------------------------------------------------#
 # 2. Define Functions
 #-------------------------------------------------------------#
 
-# This function creates a soup object
-def make_soup(url): 
-    #sleep(uniform(0,1)) 
-    response = requests.get(url)
-    # Throw a warning for non-200 status codes
-    if response.status_code != 200:
-        warn('Status code: {}'.format(response.status_code))
-    html=response.text
-    return BeautifulSoup(html, "lxml")
+def make_soup(url):
+    '''
+    Function creates a soup object from url string
+    '''    
+    
+   #sleep(uniform(0,1))    
+    try:
+        response = requests.get(url, timeout=5)
+        html, stat = response.text, response.status_code
+    except requests.exceptions.HTTPError:
+        html, stat = "", 0
+    except requests.exceptions.Timeout:
+        html, stat = "", 1
+    except requests.exceptions.ConnectionError:
+        html, stat = "", 2
+    except requests.exceptions.RequestException:
+        html, stat = "", 3
+    # Probably need to add more errors in here
+        
+    print("Status Code: %s" % stat)
+    return BeautifulSoup(html, "lxml"), stat
 
-# This functions gets all links in webpage
 def process(url):
- 
-    soup = make_soup(url)
+    '''
+    Function retrieves all links from a webpage excluding external links
+    ''' 
+    soup, stat = make_soup(url)
     
     # Get all links on page
-    odie = [urlparse.urljoin(url,tag['href']) for tag in soup.findAll('a', href=True)]
+    links = [urlparse.urljoin(url,tag['href']) for tag in soup.findAll('a', href=True)]
+    
+    # Remove bookmark section from urls
+    links1 = [x.split("#")[0] for x in links]    
     
     # Remove duplicates
-    odie = list(set(odie))  
-    
-    return odie
-
-# This function gets all links in webpage and subpages excluding external links   
-def get_pages(url):
-    
-    # Get links on main page
-    links1 = process(url)
+    links1 = list(set(links1))
     
     # Remove outside links that don't start with url
-    y = [s for s in links1 if s.startswith(url) == True]
+    links = [s for s in links1 if s.startswith(url) == True]
+      
+    return links, stat
+
+def get_pages(url):
+    '''
+    Function retrieves all links from a webpage and its subpages
+    excluding external links
+    '''     
+    
+    # Get links on main page
+    links1, stat1 = process(url)
 
     # Get links on each subpage
-    links2 = []
-    for i in y:
+    links2, STATS = [], []
+    
+    for i in links1:
         print(i)
-        x = process(i)
-        links2 = links2+x
-    links = links2+y
+        x, stat = process(i)
+        
+        links2 += x
+        STATS += [stat]
+    links = links2 + links1
+    
+    # Save urls and status codes to csv
+    STATS = [stat1] + STATS
+    LINKS = [url] + links1
+    d1 = pd.DataFrame(LINKS,columns=['url'])
+    d2 = pd.DataFrame(STATS,columns=['status code'])
+    d = pd.concat([d1, d2], axis=1, join_axes=[d1.index])
     
     # Remove duplicates
     links = list(set(links))
-    
-    # Remove outside links that don't start with url
-    x = [s for s in links if s.startswith(url) == True]
 
-    return x
+    return links, d
 
-# This function returns the index places of "a" in the string "text"
 def get_index(text, a):
+    '''
+    Function returns the index places of "a" in the string "text"
+    '''   
     return [i for i,x in enumerate(text.split()) if x==a]
     
-# This function a list of sentences of n words around the "term" in the "text" string
 def get_sentences(text,term,n):
+    '''
+    Function returns a list of sentences of "n" words around the "term"
+    in the "text" string
+    '''
     ind = get_index(text,term)
     sentence_list = [text.split()[max(0,i-n):i+n] for i in ind]
     sentences = [' '.join(x) for x in sentence_list]
@@ -95,30 +137,30 @@ def get_sentences(text,term,n):
     sentences1 = [unicodedata.normalize('NFKD',x).encode('ascii','ignore') for x in sentences]
     return sentences1
 
-# This function counts the number of occurences of keywords on each page in links
-# It also returns the relevant sentences
 def count_keys(links,key,n):
-    Totalcount = []
-    Totalsent = []
+    '''
+    Function counts the number of occurences of keywords on each page in links,
+    returns the relevant sentences, and the status code of the page request
+    '''
+    Totalcount, Totalsent = [], []
+    
     for l in links:
-        try:
-            soup = make_soup(l)
-        except urllib2.HTTPError, e:
-            print 'Error:', e
-            print(len(Totalcount))
-            continue
-        COUNT = [l]
-        SENT = []
+
+        print(l)
+        soup, stat = make_soup(l)
+        
+        COUNT, SENT = [l,stat], []
         for word in key:
+            
             # Get text
-            text=soup.get_text()
+            text = soup.get_text()
             
             # Get word count
             ind = get_index(text,word)
             count = len(ind)
             COUNT.append(count)
             
-            # get sentences
+            # Get sentences
             sentences = get_sentences(text,word,n)
             SENT.append(sentences)            
             
@@ -126,7 +168,7 @@ def count_keys(links,key,n):
         Totalsent.append(SENT)
     
     # Save counts to a dataframe
-    headers = ['url'] + key
+    headers = ['url','status code'] + key
     d = pd.DataFrame(Totalcount,columns=headers)
     
     # Save sentences to a dataframe
@@ -147,15 +189,15 @@ def main_function(url,key,name,n):
     
     # Get all subpage links and save
     print('Retrieving Links...')
-    links = get_pages(url)
+    links, stats = get_pages(url)
     dlinks = pd.DataFrame(links,columns=["sub_pages"])
     dlinks.insert(0,'hospital',name)
     dlinks.insert(1,'hospital_website',url)
     dlinks.to_csv('./output/'+name+'_subpagelinks.csv',index=False, encoding='utf-8')
     
-    # Cout keywords in subpages
+    # Count keywords in subpages
     print('Counting keywords...')
-    links = links[0:20]  
+    #links = links[0:20]  
     d = count_keys(links,key,n)
     d.insert(0,'hospital',name)
     d.insert(1,'hospital_website',url)
@@ -164,26 +206,70 @@ def main_function(url,key,name,n):
     print("--- %s seconds ---" % (time.time() - start_time))
 
 #-------------------------------------------------------------#
-# 3. Analysis
+# 3. Main function
+#-------------------------------------------------------------#
+
+def main():
+    """
+    Function main() expects arguments via terminal entry.
+    
+    The inputs should be:
+    input_data,keywords,sentence_length,start_index,end_index
+    """
+
+    # The first element of args is the function name.
+    args = sys.argv[1:]
+    
+    # Check to make sure the proper number of arguments exist.
+    if not args or len(args) < 5:
+        print('usage: input_file keyword_file sentence_length start_index end_index')
+        sys.exit(1)
+    d_name, key_name = args[0], args[1]
+    n, s1, s2 = int(args[2]),int(args[3]),int(args[4])
+    
+    # Get the main input file
+    print('Now reading the main input file...')
+    d = pd.read_csv(d_name)
+    d.columns = map(str.lower, d.columns)
+    df = d[s1:s2]
+    
+    # Get the keyword file
+    print('Reading keyword files...')
+    with open(key_name, 'rb') as f:
+        reader = csv.reader(f)
+        key_list = list(reader)
+    keywords = [val for sublist in key_list for val in sublist]
+    
+    # Initialize model.
+    print('Start Scraping...')
+    
+    # Loop over hospitals
+    for url, name in zip(df["website"], df["hospital name"]):
+        print('Processing hospital: '+name)
+        main_function(url,keywords,name,n)
+
+if __name__ == '__main__':
+    main()
+
+#-------------------------------------------------------------#
+# 4. Manual Analysis
 #-------------------------------------------------------------#
 
 # Load data
-d = pd.read_csv("./data/SIE-IMPAQ-URL-05252017.csv")
-d.columns = map(str.lower, d.columns)
-df = d[5:8]
-
-# Load keywords
-with open('./data/keywords.csv', 'rb') as f:
-    reader = csv.reader(f)
-    key_list = list(reader)
-keywords = [val for sublist in key_list for val in sublist]
-
-# Parameters
-n = 10
-
-# Loop over this    
-for url, name in zip(df["website"], df["hospital name"]):
-    print('Processing hospital: '+name)
-    main_function(url,keywords,name,n)
-
-
+#d = pd.read_csv("./data/SIE-IMPAQ-URL-05252017.csv")
+#d.columns = map(str.lower, d.columns)
+#df = d[34:40]
+#
+## Load keywords
+#with open('./data/keywords.csv', 'rb') as f:
+#    reader = csv.reader(f)
+#    key_list = list(reader)
+#keywords = [val for sublist in key_list for val in sublist]
+#
+## Parameters
+#n = 10
+#
+## Loop over this    
+#for url, name in zip(df["website"], df["hospital name"]):
+#    print('Processing hospital: '+name)
+#    main_function(url,keywords,name,n)
