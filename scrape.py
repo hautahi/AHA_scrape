@@ -99,13 +99,13 @@ def get_pages(url):
     links, s = process(url)
 
     # Get links on each subpage
-    links2 = []   
+    links1 = []   
     for i in links:
         #print(i)
         x, s = process(i)        
-        links2 += x
+        links1 += x
 
-    links = links2 + links
+    links = links + links1
 
     # Remove duplicates
     links = list(set(links))
