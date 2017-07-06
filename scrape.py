@@ -21,6 +21,9 @@ Still to be fixed:
 2. Connection error Errno 11004
 3. When scraping, I think it excludes some tags. Like image descriptions and maybe stuff in the head.
 
+To do:
+1. Save soup or text objects in folders
+
 '''
 
 #-------------------------------------------------------------#
@@ -143,12 +146,18 @@ def count_keys(links,key,n):
     returns the relevant sentences, and the status code of the page request
     '''
     Totalcount, Totalsent = [], []
+    Webcontent = []
     
     for l in links:
-
+        
+        # Fetch website
         print(l)
         soup, stat = make_soup(l)
         
+        # Save website content
+        Webcontent.append([l,stat,[soup.get_text(separator=" ", strip=True)]]) 
+        
+        # Get word counts and sentences
         COUNT, SENT = [l,stat], []
         for word in key:
             
@@ -179,31 +188,11 @@ def count_keys(links,key,n):
     # Combine dataframes
     comb = pd.concat([d, Sdf], axis=1, join_axes=[d.index])
     
-    return comb
-
-def main_function(url,key,name,n):
-    '''
-    n: number of words either side for contextual text
-    '''
-    start_time = time.time() 
+    # Save website content
+#    headers = ['url','status code','content']
+#    web = pd.DataFrame(Webcontent,columns=headers)
     
-    # Get all subpage links and save
-    print('Retrieving Links...')
-    links, stats = get_pages(url)
-    dlinks = pd.DataFrame(links,columns=["sub_pages"])
-    dlinks.insert(0,'hospital',name)
-    dlinks.insert(1,'hospital_website',url)
-    dlinks.to_csv('./output/'+name+'_subpagelinks.csv',index=False, encoding='utf-8')
-    
-    # Count keywords in subpages
-    print('Counting keywords...')
-    #links = links[0:20]  
-    d = count_keys(links,key,n)
-    d.insert(0,'hospital',name)
-    d.insert(1,'hospital_website',url)
-    d.to_csv('./output/'+name+'.csv',index=False, encoding='utf-8')
-    
-    print("--- %s seconds ---" % (time.time() - start_time))
+    return comb, Webcontent
 
 #-------------------------------------------------------------#
 # 3. Main function
@@ -224,29 +213,58 @@ def main():
     if not args or len(args) < 5:
         print('usage: input_file keyword_file sentence_length start_index end_index')
         sys.exit(1)
-    d_name, key_name = args[0], args[1]
-    n, s1, s2 = int(args[2]),int(args[3]),int(args[4])
+    d_name, key_name = args[0:2]
+    n, s1, s2 = [int(x) for x in args[2:5]]
     
-    # Get the main input file
+    # Read the main input file
     print('Now reading the main input file...')
     d = pd.read_csv(d_name)
     d.columns = map(str.lower, d.columns)
     df = d[s1:s2]
     
-    # Get the keyword file
+    # Read the keyword file
     print('Reading keyword files...')
     with open(key_name, 'rb') as f:
         reader = csv.reader(f)
         key_list = list(reader)
     keywords = [val for sublist in key_list for val in sublist]
     
-    # Initialize model.
+    # Loop over hospitals
     print('Start Scraping...')
     
-    # Loop over hospitals
     for url, name in zip(df["website"], df["hospital name"]):
+        
         print('Processing hospital: '+name)
-        main_function(url,keywords,name,n)
+        
+        start_time = time.time() 
+    
+        # Get all subpage links and save
+        print('Retrieving Links...')
+        links, stats = get_pages(url)
+#        dlinks = pd.DataFrame(links,columns=["sub_pages"])
+#        dlinks.insert(0,'hospital',name)
+#        dlinks.insert(1,'hospital_website',url)
+#        dlinks.to_csv('./output/'+name+'_subpagelinks.csv',index=False, encoding='utf-8')
+        
+        # Count keywords in subpages
+        print('Counting keywords...')
+        #links = links[0:20]  
+        d, w = count_keys(links,keywords,n)
+        d.insert(0,'hospital',name)
+        d.insert(1,'hospital_website',url)
+        d.to_csv('./output/'+name+'.csv',index=False, encoding='utf-8')
+        
+#        wd = pd.DataFrame(w,columns=["url","status",'content'])
+#        wd.insert(0,'hospital',name)
+#        wd.insert(1,'hospital_website',url)
+#        wd.to_csv('./output/'+name+'_webcontent.csv',index=False, encoding='utf-8')
+
+        with open ('./output/'+name+'_webcontent.csv','wb') as file:
+           writer=csv.writer(file)
+           for row in w:
+              writer.writerow(row)
+        
+        print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
