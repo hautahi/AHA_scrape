@@ -39,9 +39,9 @@ import time
 import csv
 import unicodedata
 import requests
+import sys
 #from time import sleep
 #from random import uniform
-import sys
 
 #-------------------------------------------------------------#
 # 2. Define Functions
@@ -64,9 +64,9 @@ def make_soup(url):
         html, stat = "", 2
     except requests.exceptions.RequestException:
         html, stat = "", 3
-    # Probably need to add more errors in here
+    # Might need to add more errors in here
         
-    print("Status Code: %s" % stat)
+    #print("Status Code: %s" % stat)
     return BeautifulSoup(html, "lxml"), stat
 
 def process(url):
@@ -96,30 +96,21 @@ def get_pages(url):
     '''     
     
     # Get links on main page
-    links1, stat1 = process(url)
+    links, s = process(url)
 
     # Get links on each subpage
-    links2, STATS = [], []
-    
-    for i in links1:
-        print(i)
-        x, stat = process(i)
-        
+    links2 = []   
+    for i in links:
+        #print(i)
+        x, s = process(i)        
         links2 += x
-        STATS += [stat]
-    links = links2 + links1
-    
-    # Save urls and status codes to csv
-    STATS = [stat1] + STATS
-    LINKS = [url] + links1
-    d1 = pd.DataFrame(LINKS,columns=['url'])
-    d2 = pd.DataFrame(STATS,columns=['status code'])
-    d = pd.concat([d1, d2], axis=1, join_axes=[d1.index])
-    
+
+    links = links2 + links
+
     # Remove duplicates
     links = list(set(links))
 
-    return links, d
+    return links
 
 def get_index(text, a):
     '''
@@ -151,7 +142,7 @@ def count_keys(links,key,n):
     for l in links:
         
         # Fetch website
-        print(l)
+        #print(l)
         soup, stat = make_soup(l)
         
         # Save website content
@@ -185,12 +176,11 @@ def count_keys(links,key,n):
     headers = ['text-'+x for x in key]
     Sdf = pd.DataFrame(S,columns=headers)
     
+    # Remove text of last keyword
+    del Sdf['text-'+key[-1]]
+    
     # Combine dataframes
     comb = pd.concat([d, Sdf], axis=1, join_axes=[d.index])
-    
-    # Save website content
-#    headers = ['url','status code','content']
-#    web = pd.DataFrame(Webcontent,columns=headers)
     
     return comb, Webcontent
 
@@ -200,21 +190,36 @@ def count_keys(links,key,n):
 
 def main():
     """
-    Function main() expects arguments via terminal entry.
+    Function main() expects arguments via terminal entry. Enter the following:
     
-    The inputs should be:
-    input_data,keywords,sentence_length,start_index,end_index
+    python scrape.py input_data,keywords,start_index,end_index,sentence_length
+    
+    Definitions of inputs are as follows:
+    input_data: csv file with two variables ("hospital name" and "website")
+    keywords: csv file with list of keywords (the last word will not have
+    the printed content so best to use a test case such as "the")
+    start_index/end_index: program slices the input data between these integers    
+    sentence_length: number of words on each side of a keyword for context
+    (This is optional, default is 16).    
     """
 
     # The first element of args is the function name.
     args = sys.argv[1:]
     
     # Check to make sure the proper number of arguments exist.
-    if not args or len(args) < 5:
-        print('usage: input_file keyword_file sentence_length start_index end_index')
+    if not args or len(args) < 4:
+        print('usage: input_file keyword_file start_index end_index sentence_length(optional)')
         sys.exit(1)
+    
+    # Assign parameters
     d_name, key_name = args[0:2]
-    n, s1, s2 = [int(x) for x in args[2:5]]
+    s1, s2 = [int(x) for x in args[2:4]]
+    
+    # Optional sentence length parameter
+    if len(args) == 5:
+        n = int(args[4])
+    else:
+        n = 16
     
     # Read the main input file
     print('Now reading the main input file...')
@@ -238,31 +243,25 @@ def main():
         
         start_time = time.time() 
     
-        # Get all subpage links and save
+        # Get all subpage links
         print('Retrieving Links...')
-        links, stats = get_pages(url)
-#        dlinks = pd.DataFrame(links,columns=["sub_pages"])
-#        dlinks.insert(0,'hospital',name)
-#        dlinks.insert(1,'hospital_website',url)
-#        dlinks.to_csv('./output/'+name+'_subpagelinks.csv',index=False, encoding='utf-8')
+        links = get_pages(url)
         
-        # Count keywords in subpages
+        # Get subpage content and count keywords
         print('Counting keywords...')
         #links = links[0:20]  
         d, w = count_keys(links,keywords,n)
+        
+        # Save keyword counts
         d.insert(0,'hospital',name)
         d.insert(1,'hospital_website',url)
         d.to_csv('./output/'+name+'.csv',index=False, encoding='utf-8')
         
-#        wd = pd.DataFrame(w,columns=["url","status",'content'])
-#        wd.insert(0,'hospital',name)
-#        wd.insert(1,'hospital_website',url)
-#        wd.to_csv('./output/'+name+'_webcontent.csv',index=False, encoding='utf-8')
-
-        with open ('./output/'+name+'_webcontent.csv','wb') as file:
-           writer=csv.writer(file)
-           for row in w:
-              writer.writerow(row)
+        # Save content from each page (using manual write for more efficiency)
+        wd = pd.DataFrame(w,columns=["url","status",'content'])
+        wd.insert(0,'hospital',name)
+        wd.insert(1,'hospital_website',url)
+        wd.to_csv('./output/'+name+'_webcontent.csv',index=False, encoding='utf-8')
         
         print("--- %s seconds ---" % (time.time() - start_time))
 
