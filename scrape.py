@@ -86,8 +86,11 @@ def process(url):
     
     # Remove outside links that don't start with url
     links = [s for s in links1 if s.startswith(url) == True]
+    
+    # Remove pdf links
+    links_pdf = [s for s in links if s.endswith("pdf") != True]
       
-    return links, stat
+    return links_pdf, stat
 
 def get_pages(url):
     '''
