@@ -2,15 +2,15 @@
 
 This repository contains web scraping code that visits hospital websites, extracts their subpages, downloads and saves their content, and searches for keywords.
 
-- `scrape.py` is the main scraping code
-It can be run from the terminal using the following command:
-`python scrape.py input_data keywords index_start index_end [sentence_length]`
+- `scrape.py` is the main scraping code. It can be run from the terminal using the following command:
 
-where each of the inputs are as follows:
+	`python scrape.py input/hospital_list.csv input/keywords.csv index_start index_end [sentence_length]`
+
+	where the index_start and index_end inputs are integers used to slice the input data. For example, index_start = 40 and index_end = 50 scrapes the websites for those hospitals between 40 and 50 in `hospital.csv`. `sentence_length` is an optional integer that determines the number of words to extract from either side of a keyword that is useful for providing context. The defualt value is 16.
 
 
 - `input` contains the two input data files
 	- `hospital_list.csv`
-	- `keywords.csv'
+	- `keywords.csv`
 
-- `output` folder contains the resulting keyword search data. For each hospital, there are two output csv files. One contains the keyword counts. The other contains the full downloaded text from each subpage.
+- `output` folder contains the resulting keyword search data. For each hospital, there are two output .csv files. One contains the keyword counts. The other contains the full downloaded text from each subpage.
