@@ -246,11 +246,14 @@ def main():
         # Get all subpage links
         print('Retrieving Links...')
         links = get_pages(url)
+        print("Retrieving links took %s seconds" % (time.time() - start_time))
+        time1 = time.time()
         
         # Get subpage content and count keywords
         print('Counting keywords...')
         #links = links[0:20]  
         d, w = count_keys(links,keywords,n)
+        print("Counting keywords took %s seconds" % (time.time() - time1))
         
         # Save keyword counts
         d.insert(0,'hospital',name)
