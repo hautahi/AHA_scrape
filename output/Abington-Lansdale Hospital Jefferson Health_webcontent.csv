@@ -1,1 +1,441 @@
-url,status,content
+hospital,hospital_website,url,status,content
+Abington-Lansdale Hospital Jefferson Health,http://www.abingtonhealth.org/find-a-location/abington-lansdale-hospital/#.V5dyVVL9yk4,http://www.abingtonhealth.org/our-locations/abington-lansdale-hospital/history/,200,"[//<![CDATA[
+	window['VitalSite'] = {
+  ""page"": {
+    ""Referrer"": null,
+    ""Method"": ""GET"",
+    ""IsPostBack"": false,
+    ""StatusCode"": 200,
+    ""Status"": ""200 OK""
+  }
+};
+//]]> //<![CDATA[
+Geonetric.Diagnostics.IS_DEBUG = false;
+window.Geonetric_DoPostBackPreparationFunctions = new Array();
+Geonetric.Page.VirtualDirectory = '/';
+Geonetric.Page.RequestMethod = 'GET';
+//]]> //<![CDATA[
+Geonetric.Page.NavigationNode = '/7/4/57/3/';
+//]]> // Standard Include to UGA...
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+   
+  // CLIENT ACCOUNT SETUP
+  ga('create', 'UA-5259942-1', 'abingtonhealth.org');
+  ga('require', 'displayfeatures');
+  // DISCOUNT POSTBACKS
+  if (!VitalSite.page.IsPostBack) {
+    // Track The Page View...
+    if (VitalSite.page.StatusCode == 200) {
+      if (VitalSite.forms == null) {
+        // REGULAR PAGE VIEW
+        ga('send', 'pageview');
+      } else {
+        // ITS A FORM SO TRACK THAT PAGE
+        ga(
+           'send',
+           'pageview',  {
+            'page': ('/' + document.location.pathname + '/' + VitalSite.forms.FormName + '/page' + VitalSite.forms.PageNumber),
+            'title': VitalSite.forms.FormName
+            }
+           );
+      }
+    } else {
+      // ERROR PAGE OF SOME SORT
+      ga(
+         'send',
+         'event',
+         VitalSite.page.StatusCode.toString(),
+         'Error',
+         ('page: ' + document.location.pathname + document.location.search + ' ref: ' + Request.UrlReferrer)
+         );
+    }
+  } if (VitalSite.trans != null && VitalSite.trans.IsComplete == true) {
+    // Load the ecommerce plugin
+    ga('require', 'ecommerce', 'ecommerce.js');
+     
+    var categoryValue;
+    var skuValue;
+    var nameValue;
+    var items = [];
+    var total = 0;
+     
+    // loop throw all the submissions to determine which we want to pass to google along with values to pass
+    $.each(VitalSite.trans.Submissions, function(data) {
+        var isCalendar = this['Type'].toLowerCase()=='calendar';
+         
+        // if the submission is for calendar, these values are passed later to google              
+        if (isCalendar)
+         {
+            orderText = ""Shopping Cart Order ID: "" + VitalSite.trans.TransactionId;
+            nameValue = this['Calendar'].TopicName;
+            categoryValue = ""Calendar event registration: "" + this['Calendar'].RegistrationId;
+            skuValue = ""EventId: "" + this['Calendar'].EventId + "" RegId: "" + this['Calendar'].RegistrationId;  
+         }
+         // if the submission is for formsbuilder, these values are passed later to google
+         else
+         {         
+            nameValue = this['FormName'];
+            categoryValue = ""FormSubmission: "" + this['SubmissionId'];
+            skuValue = ""FormId: "" + this['FormId'] + "" SubmissionId: "" + this['SubmissionId'];
+            orderText=""LedgerTransaction created for submission: ""+ this['SubmissionId'] + "" of Form: "" + this['FormName'];
+         }
+         
+        //this block determines the criteria for which items we will total up and pass to google
+        if (this['Price'] > 0 && this['PaymentType'].toLowerCase() == 'Online_Payment'.toLowerCase()) { 
+            items.push({
+                id : VitalSite.trans.TransactionId,
+                name : nameValue,
+                sku : skuValue,
+                category : categoryValue,
+                price : this['Price'],
+                quantity : '1'});
+                total += this['Price'];
+            }
+    });
+    // Add transaction data
+    ga('ecommerce:addTransaction', {
+      'id': VitalSite.trans.TransactionId,
+      'affiliation': orderText,
+      'revenue': total
+    });
+    $.each(items, function (data) {
+        ga('ecommerce:addItem', {
+        'id': this['id'],
+        'name': this['name'],
+        'sku': this['sku'],
+        'category': this['category'],
+        'price': this['price'],
+        'quantity': '1'
+              });
+    });
+    // Send
+    ga('ecommerce:send');
+  } /*<![CDATA[*/(function(w,a,b,d,s){w[a]=w[a]||{};w[a][b]=w[a][b]||{q:[],track:function(r,e,t){this.q.push({r:r,e:e,t:t||+new Date});}};var e=d.createElement(s);var f=d.getElementsByTagName(s)[0];e.async=1;e.src='//jeffersonhealth.hrm.healthgrades.com/cdnr/cid3/acton/bn/tracker/18658';f.parentNode.insertBefore(e,f);})(window,'ActOn','Beacon',document,'script');ActOn.Beacon.track();/*]]>*/ Lansdale Hospital History - Abington - Jefferson Health Toggle navigation Home of Sidney Kimmel Medical College All Locations Abington Aria Jefferson Careers Abington Aria Jefferson Give Now Abington Aria Jefferson Call 1-800-JEFF-NOW UNIVERSITY 1-800-JEFF-NOW Skip to Content Abington - Jefferson Health Menu Search About Us News Ways of Giving Search Site FIND A DOCTOR 215-481-MEDI SCHEDULE TESTS 215-481-EXAM MYAHLINK Main Navigation Services & Specialties Find A Doctor Our Locations Patients & Guests Healthy Living Classes & Events //<![CDATA[
+var theForm = document.forms['aspnetForm'];
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]> //<![CDATA[
+window.PageMessagesListScript = {""ClientIDSeparator"":""_"",""DivClientID"":""VsMasterPage_MessageDisplay"",""ErrorsClass"":""Message MessageError"",""ErrorsSuffix"":""Errors"",""InfoClass"":""Message MessageInfo"",""InfoSuffix"":""Info"",""WarningsClass"":""Message MessageWarning"",""WarningsSuffix"":""Warnings""};
+//]]> You are here: Home > Our Locations > Abington - Lansdale Hospital > Lansdale Hospital History View Additional Section Content var addthis_config = { ""data_track_addressbar"": true }; Abington – Lansdale Hospital A Brief History Lansdale Hospital Receives National Recognition for Excellence Marking Five Years Since Joining Abington Health.– Read More In 1934, Frank E. Boston, M.D., a local primary care physician, established Elm Terrace Hospital, a privately owned hospital in Lansdale at Seventh and Broad Streets.  At the time, the hospital had 23 beds.  In 1939, the Hospital was established as a non-profit and renamed North Penn Hospital.  By 1952 it had grown to 37 beds with a waiting list for patients to be admitted and in 1953, ground was broken for the first major expansion at the Broad Street site.  In September, 1955 a four story building with 147 beds was dedicated. By 1973, the Hospital needed to expand again and plans were developed to move to a larger campus in Hatfield Township.  This larger facility, with 150 beds, was dedicated on April 26, 1980. In February 2002, Universal Health Services (UHS), a King of Prussia based national company, purchased the North Penn Hospital, converting it to a for profit facility and renaming it Central Montgomery Medical Center.  UHS added services and programs, including an MRI unit, interventional radiology suite, and a medical arts building attached to the hospital on the 120 acre campus.  In addition, the emergency department was upgraded to a state of the art 24 bed unit. In October, 2008, Abington Memorial Hospital (AMH) acquired Central Montgomery Medical Center and converted it back to a non-profit entity.  AMH pledged to maintain the hospital as an acute care inpatient facility, including emergency services, while growing outpatient programs.  The Hospital was renamed Lansdale Hospital and provides 135 acute care beds. In July 2009 new emergency medicine physicians were brought on board to staff the Emergency Department at Lansdale Hospital.  These physicians, along with 11 advance practice professionals, are members of Abington Emergency Physician Associates, the same group that practices at Abington Memorial Hospital (AMH), the only Level II Trauma Center in Montgomery County.  This group has achieved and maintained high patient satisfaction scores in emergency services at both hospitals. In keeping with the commitment to enhance services at the Lansdale Hospital campus, the Orthopaedic and Spine Institute opened in January 2011.  This represented the first system-wide service line introduced under the Abington Health name, with premier locations at both Lansdale Hospital and Abington Memorial Hospital.  The Institute was developed in concert with orthopaedic and spine specialists at both hospitals.  Services include medical/surgical treatment for joint replacement, spine surgery, sports medicine, hand and trauma treatment and rehabilitation.  Patients can take advantage of a mini-revolution in hip, knee and spine surgery.  The Institute was created in a “one-stop” facility, including pre-admission testing and education as well as physical therapy for inpatients.  Andrew M. Star, M.D., serves as Medical Director of the Institute. In addition to the Orthopaedic and Spine Institute, Lansdale provides a full range of inpatient and outpatient services to meet the needs of the North Penn and Hatfield Township communities. Abington - Lansdale Hospital Services & Specialties Find a Physician Lansdale Hospital History Important Phone Numbers Directions There are two entrances to Abington – Lansdale Hospital.  One is located on Broad Street and the other is located on Line Street.  Either entrance will bring you to the Main Hospital Entrance and Visitor/Patient Parking Area. Use the below links for specific directions: From Route 309 South: Allentown/Quakertown From Route 309 North: Philadelphia From the Northeast Extension, Pennsylvania Turnpike From Route 202 South: Doylestown From Route 76 (Schuylkill Expressway): Center City Philadelphia Join Our Team Employment Benefits Women's Board Volunteering Premed Program Healthcare Professionals PACS Web One-Call Transfer Telemedicine Services Radiology Ordering Guide Contact Us Awards My AH Link © 2017 Abington - Jefferson Health. All rights reserved. 1200 Old York Road, Abington, PA 19001 215-481-2000 Privacy Policy Disclaimer Facebook Twitter YouTube Instagram //<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('VsMasterPage$ScriptManager', 'aspnetForm', [], [], [], 90, 'VsMasterPage');
+//]]> var jq321 = jQuery.noConflict(true);]"
+Abington-Lansdale Hospital Jefferson Health,http://www.abingtonhealth.org/find-a-location/abington-lansdale-hospital/#.V5dyVVL9yk4,http://www.abingtonhealth.org/our-locations/abington-lansdale-hospital/,200,"[//<![CDATA[
+	window['VitalSite'] = {
+  ""page"": {
+    ""Referrer"": null,
+    ""Method"": ""GET"",
+    ""IsPostBack"": false,
+    ""StatusCode"": 200,
+    ""Status"": ""200 OK""
+  },
+  ""taxonomy"": [
+    {
+      ""FacetId"": ""18ba9c06-5d01-4115-873d-d7a59305a2d6"",
+      ""FacetAttributes"": 0,
+      ""FacetName"": ""Abington Location Type"",
+      ""FacetPropertyName"": ""AbingtonLocationType"",
+      ""Terms"": [
+        {
+          ""TermId"": ""71536fbb-b569-e311-9eee-2c768a4e1b84"",
+          ""Name"": ""Hospital""
+        }
+      ]
+    }
+  ]
+};
+//]]> //<![CDATA[
+Geonetric.Diagnostics.IS_DEBUG = false;
+window.Geonetric_DoPostBackPreparationFunctions = new Array();
+Geonetric.Page.VirtualDirectory = '/';
+Geonetric.Page.RequestMethod = 'GET';
+//]]> //<![CDATA[
+Geonetric.Page.NavigationNode = '/7/4/57/';
+//]]> // Standard Include to UGA...
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+   
+  // CLIENT ACCOUNT SETUP
+  ga('create', 'UA-5259942-1', 'abingtonhealth.org');
+  ga('require', 'displayfeatures');
+  // DISCOUNT POSTBACKS
+  if (!VitalSite.page.IsPostBack) {
+    // Track The Page View...
+    if (VitalSite.page.StatusCode == 200) {
+      if (VitalSite.forms == null) {
+        // REGULAR PAGE VIEW
+        ga('send', 'pageview');
+      } else {
+        // ITS A FORM SO TRACK THAT PAGE
+        ga(
+           'send',
+           'pageview',  {
+            'page': ('/' + document.location.pathname + '/' + VitalSite.forms.FormName + '/page' + VitalSite.forms.PageNumber),
+            'title': VitalSite.forms.FormName
+            }
+           );
+      }
+    } else {
+      // ERROR PAGE OF SOME SORT
+      ga(
+         'send',
+         'event',
+         VitalSite.page.StatusCode.toString(),
+         'Error',
+         ('page: ' + document.location.pathname + document.location.search + ' ref: ' + Request.UrlReferrer)
+         );
+    }
+  } if (VitalSite.trans != null && VitalSite.trans.IsComplete == true) {
+    // Load the ecommerce plugin
+    ga('require', 'ecommerce', 'ecommerce.js');
+     
+    var categoryValue;
+    var skuValue;
+    var nameValue;
+    var items = [];
+    var total = 0;
+     
+    // loop throw all the submissions to determine which we want to pass to google along with values to pass
+    $.each(VitalSite.trans.Submissions, function(data) {
+        var isCalendar = this['Type'].toLowerCase()=='calendar';
+         
+        // if the submission is for calendar, these values are passed later to google              
+        if (isCalendar)
+         {
+            orderText = ""Shopping Cart Order ID: "" + VitalSite.trans.TransactionId;
+            nameValue = this['Calendar'].TopicName;
+            categoryValue = ""Calendar event registration: "" + this['Calendar'].RegistrationId;
+            skuValue = ""EventId: "" + this['Calendar'].EventId + "" RegId: "" + this['Calendar'].RegistrationId;  
+         }
+         // if the submission is for formsbuilder, these values are passed later to google
+         else
+         {         
+            nameValue = this['FormName'];
+            categoryValue = ""FormSubmission: "" + this['SubmissionId'];
+            skuValue = ""FormId: "" + this['FormId'] + "" SubmissionId: "" + this['SubmissionId'];
+            orderText=""LedgerTransaction created for submission: ""+ this['SubmissionId'] + "" of Form: "" + this['FormName'];
+         }
+         
+        //this block determines the criteria for which items we will total up and pass to google
+        if (this['Price'] > 0 && this['PaymentType'].toLowerCase() == 'Online_Payment'.toLowerCase()) { 
+            items.push({
+                id : VitalSite.trans.TransactionId,
+                name : nameValue,
+                sku : skuValue,
+                category : categoryValue,
+                price : this['Price'],
+                quantity : '1'});
+                total += this['Price'];
+            }
+    });
+    // Add transaction data
+    ga('ecommerce:addTransaction', {
+      'id': VitalSite.trans.TransactionId,
+      'affiliation': orderText,
+      'revenue': total
+    });
+    $.each(items, function (data) {
+        ga('ecommerce:addItem', {
+        'id': this['id'],
+        'name': this['name'],
+        'sku': this['sku'],
+        'category': this['category'],
+        'price': this['price'],
+        'quantity': '1'
+              });
+    });
+    // Send
+    ga('ecommerce:send');
+  } /*<![CDATA[*/(function(w,a,b,d,s){w[a]=w[a]||{};w[a][b]=w[a][b]||{q:[],track:function(r,e,t){this.q.push({r:r,e:e,t:t||+new Date});}};var e=d.createElement(s);var f=d.getElementsByTagName(s)[0];e.async=1;e.src='//jeffersonhealth.hrm.healthgrades.com/cdnr/cid3/acton/bn/tracker/18658';f.parentNode.insertBefore(e,f);})(window,'ActOn','Beacon',document,'script');ActOn.Beacon.track();/*]]>*/ Lansdale Hospital - Abington - Jefferson Health Toggle navigation Home of Sidney Kimmel Medical College All Locations Abington Aria Jefferson Careers Abington Aria Jefferson Give Now Abington Aria Jefferson Call 1-800-JEFF-NOW UNIVERSITY 1-800-JEFF-NOW Skip to Content Abington - Jefferson Health Menu Search About Us News Ways of Giving Search Site FIND A DOCTOR 215-481-MEDI SCHEDULE TESTS 215-481-EXAM MYAHLINK Main Navigation Services & Specialties Find A Doctor Our Locations Patients & Guests Healthy Living Classes & Events //<![CDATA[
+var theForm = document.forms['aspnetForm'];
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]> //<![CDATA[
+window.PageMessagesListScript = {""ClientIDSeparator"":""_"",""DivClientID"":""VsMasterPage_MessageDisplay"",""ErrorsClass"":""Message MessageError"",""ErrorsSuffix"":""Errors"",""InfoClass"":""Message MessageInfo"",""InfoSuffix"":""Info"",""WarningsClass"":""Message MessageWarning"",""WarningsSuffix"":""Warnings""};
+//]]> You are here: Home > Our Locations > Abington - Lansdale Hospital View Additional Section Content var addthis_config = { ""data_track_addressbar"": true }; About Abington – Lansdale Hospital Abington – Lansdale Hospital is a 150-bed, acute care general hospital providing a comprehensive range of inpatient and outpatient healthcare services. The facility includes a 24-hour emergency department , an 18-bed Orthopedic and Spine Institute , a Pain Center , Sleep Center and Wound Care Center . Home to over 700 employees, Abington – Lansdale Hospital has a staff of more than 300 active physicians. Physicians are supported by a dedicated team of professional nurses who draw from years of clinical experience and training. Abington – Lansdale Hospital offers a sophisticated array of clinical programs, including: interventional radiology, orthopedics, physical rehabilitation, outpatient surgery, cardiology, ophthalmology, pain services, podiatry, oral surgery and 24-hour emergency services. As a trusted healthcare provider, Abington – Lansdale Hospital handles nearly 6,000 inpatient admissions per year - while outpatient visits number close to 60,000. In addition, over 27,000 people are treated each year in the hospital's emergency department. Abington – Lansdale Hospital is located just outside of Lansdale, Pennsylvania, approximately 24 miles northwest of Philadelphia. Nestled in the heart of Montgomery County, Lansdale is one of the six boroughs that make up the area known as North Penn, one of the region's most prosperous and desirable locations. According to recent demographic information, Lansdale is home to an estimated 51,000 residents. However, Lansdale Hospital serves all of the North Penn communities, as well as parts of neighboring Bucks County, for a total patient base nearing 200,000. From small local enterprises to large multi-national corporations, business is booming in the North Penn area. Montgomery County has the highest per capita income in the state of Pennsylvania, and the second highest median income. Lansdale is served by the North Penn School District, with 13 elementary schools, three middle schools and one high school. The area is also home to numerous private and parochial schools, technical career centers, four-year colleges and two-year colleges. The Lansdale/North Penn area offers an exceptional quality of life, with quaint suburban towns, quality schools, a healthy economy, good jobs, abundant recreation and convenient access to Philadelphia, New York, the Poconos and the New Jersey Shore. And with Abington – Lansdale Hospital, quality healthcare is right in your community. 100 Medical Campus Dr. Lansdale, PA 19446 215-368-2100 Our Locations Abington - Lansdale Hospital Services & Specialties Find a Physician Lansdale Hospital History Lansdale Hospital has achieved two distinctions of quality excellence from Healthgrades Private Rooms Important Phone Numbers Directions There are two entrances to Abington – Lansdale Hospital.  One is located on Broad Street and the other is located on Line Street.  Either entrance will bring you to the Main Hospital Entrance and Visitor/Patient Parking Area. Use the below links for specific directions: From Route 309 South: Allentown/Quakertown From Route 309 North: Philadelphia From the Northeast Extension, Pennsylvania Turnpike From Route 202 South: Doylestown From Route 76 (Schuylkill Expressway): Center City Philadelphia Join Our Team Employment Benefits Women's Board Volunteering Premed Program Healthcare Professionals PACS Web One-Call Transfer Telemedicine Services Radiology Ordering Guide Contact Us Awards My AH Link © 2017 Abington - Jefferson Health. All rights reserved. 1200 Old York Road, Abington, PA 19001 215-481-2000 Privacy Policy Disclaimer Facebook Twitter YouTube Instagram //<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('VsMasterPage$ScriptManager', 'aspnetForm', [], [], [], 90, 'VsMasterPage');
+//]]> var jq321 = jQuery.noConflict(true);]"
+Abington-Lansdale Hospital Jefferson Health,http://www.abingtonhealth.org/find-a-location/abington-lansdale-hospital/#.V5dyVVL9yk4,http://www.abingtonhealth.org/our-locations/abington-lansdale-hospital/tel:2154812000,404,"[//<![CDATA[
+	window['VitalSite'] = {
+  ""page"": {
+    ""Referrer"": null,
+    ""Method"": ""GET"",
+    ""IsPostBack"": false,
+    ""StatusCode"": 404,
+    ""Status"": ""404 Not Found""
+  }
+};
+//]]> //<![CDATA[
+Geonetric.Diagnostics.IS_DEBUG = false;
+window.Geonetric_DoPostBackPreparationFunctions = new Array();
+Geonetric.Page.VirtualDirectory = '/';
+Geonetric.Page.RequestMethod = 'GET';
+//]]> //<![CDATA[
+Geonetric.Page.NavigationNode = '';
+//]]> // Standard Include to UGA...
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+   
+  // CLIENT ACCOUNT SETUP
+  ga('create', 'UA-5259942-1', 'abingtonhealth.org');
+  ga('require', 'displayfeatures');
+  // DISCOUNT POSTBACKS
+  if (!VitalSite.page.IsPostBack) {
+    // Track The Page View...
+    if (VitalSite.page.StatusCode == 200) {
+      if (VitalSite.forms == null) {
+        // REGULAR PAGE VIEW
+        ga('send', 'pageview');
+      } else {
+        // ITS A FORM SO TRACK THAT PAGE
+        ga(
+           'send',
+           'pageview',  {
+            'page': ('/' + document.location.pathname + '/' + VitalSite.forms.FormName + '/page' + VitalSite.forms.PageNumber),
+            'title': VitalSite.forms.FormName
+            }
+           );
+      }
+    } else {
+      // ERROR PAGE OF SOME SORT
+      ga(
+         'send',
+         'event',
+         VitalSite.page.StatusCode.toString(),
+         'Error',
+         ('page: ' + document.location.pathname + document.location.search + ' ref: ' + Request.UrlReferrer)
+         );
+    }
+  } ERROR: Page Not Found - Abington - Jefferson Health $(function() {
+									if ($(""#DrDetail"").length) {
+										$.getScript('/scripts/practice-providers.js');
+									}
+								}); Toggle navigation Home of Sidney Kimmel Medical College All Locations Abington Aria Jefferson Careers Abington Aria Jefferson Give Now Abington Aria Jefferson Call 1-800-JEFF-NOW UNIVERSITY 1-800-JEFF-NOW Skip to Content Abington - Jefferson Health Menu Search About Us News Ways of Giving Search Site FIND A DOCTOR 215-481-MEDI SCHEDULE TESTS 215-481-EXAM MYAHLINK Main Navigation //<![CDATA[
+var theForm = document.forms['aspnetForm'];
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]> //<![CDATA[
+window.PageMessagesListScript = {""ClientIDSeparator"":""_"",""DivClientID"":""VsMasterPage_MessageDisplay"",""ErrorsClass"":""Message MessageError"",""ErrorsSuffix"":""Errors"",""InfoClass"":""Message MessageInfo"",""InfoSuffix"":""Info"",""WarningsClass"":""Message MessageWarning"",""WarningsSuffix"":""Warnings""};
+//]]> You are here: Home View Additional Section Content var addthis_config = { ""data_track_addressbar"": true }; ERROR: Page Not Found Sorry, the page you attempted to access was not found on this site. If you were referred to this page from a link found on this site
+		please contact us so that we can correct the problem. If you were referred from another site, the link is no longer active. Please
+		visit our home page for complete site information. Other possible causes: We recently redesigned portions of the site,
+			so the page may have been moved. Please update
+			your bookmarks accordingly. You may have typed its location incorrectly.
+			If you typed the page address in the Address bar,
+			make sure that it is spelled correctly. The page may have been temporary in nature, created
+			by parameters you entered on a search page. You will
+			need to re-enter the parameters to recreate the page. Return to home page... Home © 2017 Abington - Jefferson Health. All rights reserved. 1200 Old York Road, Abington, PA 19001 215-481-2000 Privacy Policy Disclaimer Facebook Twitter YouTube Instagram //<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('VsMasterPage$ScriptManager', 'aspnetForm', [], [], [], 90, 'VsMasterPage');
+//]]> var jq321 = jQuery.noConflict(true); //<![CDATA[
+(function() {
+var _analytics_scr = document.createElement('script');
+_analytics_scr.type = 'text/javascript'; _analytics_scr.async = true; _analytics_scr.src = '/_Incapsula_Resource?SWJIYLWA=2977d8d74f63d7f8fedbea018b7a1d05&ns=1';
+var _analytics_elem = document.getElementsByTagName('script')[0]; _analytics_elem.parentNode.insertBefore(_analytics_scr, _analytics_elem);
+})();
+// ]]>]"
+Abington-Lansdale Hospital Jefferson Health,http://www.abingtonhealth.org/find-a-location/abington-lansdale-hospital/#.V5dyVVL9yk4,http://www.abingtonhealth.org/our-locations/abington-lansdale-hospital/history/tel:2154812000,404,"[//<![CDATA[
+	window['VitalSite'] = {
+  ""page"": {
+    ""Referrer"": null,
+    ""Method"": ""GET"",
+    ""IsPostBack"": false,
+    ""StatusCode"": 404,
+    ""Status"": ""404 Not Found""
+  }
+};
+//]]> //<![CDATA[
+Geonetric.Diagnostics.IS_DEBUG = false;
+window.Geonetric_DoPostBackPreparationFunctions = new Array();
+Geonetric.Page.VirtualDirectory = '/';
+Geonetric.Page.RequestMethod = 'GET';
+//]]> //<![CDATA[
+Geonetric.Page.NavigationNode = '';
+//]]> // Standard Include to UGA...
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+   
+  // CLIENT ACCOUNT SETUP
+  ga('create', 'UA-5259942-1', 'abingtonhealth.org');
+  ga('require', 'displayfeatures');
+  // DISCOUNT POSTBACKS
+  if (!VitalSite.page.IsPostBack) {
+    // Track The Page View...
+    if (VitalSite.page.StatusCode == 200) {
+      if (VitalSite.forms == null) {
+        // REGULAR PAGE VIEW
+        ga('send', 'pageview');
+      } else {
+        // ITS A FORM SO TRACK THAT PAGE
+        ga(
+           'send',
+           'pageview',  {
+            'page': ('/' + document.location.pathname + '/' + VitalSite.forms.FormName + '/page' + VitalSite.forms.PageNumber),
+            'title': VitalSite.forms.FormName
+            }
+           );
+      }
+    } else {
+      // ERROR PAGE OF SOME SORT
+      ga(
+         'send',
+         'event',
+         VitalSite.page.StatusCode.toString(),
+         'Error',
+         ('page: ' + document.location.pathname + document.location.search + ' ref: ' + Request.UrlReferrer)
+         );
+    }
+  } ERROR: Page Not Found - Abington - Jefferson Health $(function() {
+									if ($(""#DrDetail"").length) {
+										$.getScript('/scripts/practice-providers.js');
+									}
+								}); Toggle navigation Home of Sidney Kimmel Medical College All Locations Abington Aria Jefferson Careers Abington Aria Jefferson Give Now Abington Aria Jefferson Call 1-800-JEFF-NOW UNIVERSITY 1-800-JEFF-NOW Skip to Content Abington - Jefferson Health Menu Search About Us News Ways of Giving Search Site FIND A DOCTOR 215-481-MEDI SCHEDULE TESTS 215-481-EXAM MYAHLINK Main Navigation //<![CDATA[
+var theForm = document.forms['aspnetForm'];
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]> //<![CDATA[
+window.PageMessagesListScript = {""ClientIDSeparator"":""_"",""DivClientID"":""VsMasterPage_MessageDisplay"",""ErrorsClass"":""Message MessageError"",""ErrorsSuffix"":""Errors"",""InfoClass"":""Message MessageInfo"",""InfoSuffix"":""Info"",""WarningsClass"":""Message MessageWarning"",""WarningsSuffix"":""Warnings""};
+//]]> You are here: Home View Additional Section Content var addthis_config = { ""data_track_addressbar"": true }; ERROR: Page Not Found Sorry, the page you attempted to access was not found on this site. If you were referred to this page from a link found on this site
+		please contact us so that we can correct the problem. If you were referred from another site, the link is no longer active. Please
+		visit our home page for complete site information. Other possible causes: We recently redesigned portions of the site,
+			so the page may have been moved. Please update
+			your bookmarks accordingly. You may have typed its location incorrectly.
+			If you typed the page address in the Address bar,
+			make sure that it is spelled correctly. The page may have been temporary in nature, created
+			by parameters you entered on a search page. You will
+			need to re-enter the parameters to recreate the page. Return to home page... Home © 2017 Abington - Jefferson Health. All rights reserved. 1200 Old York Road, Abington, PA 19001 215-481-2000 Privacy Policy Disclaimer Facebook Twitter YouTube Instagram //<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('VsMasterPage$ScriptManager', 'aspnetForm', [], [], [], 90, 'VsMasterPage');
+//]]> var jq321 = jQuery.noConflict(true); //<![CDATA[
+(function() {
+var _analytics_scr = document.createElement('script');
+_analytics_scr.type = 'text/javascript'; _analytics_scr.async = true; _analytics_scr.src = '/_Incapsula_Resource?SWJIYLWA=2977d8d74f63d7f8fedbea018b7a1d05&ns=1';
+var _analytics_elem = document.getElementsByTagName('script')[0]; _analytics_elem.parentNode.insertBefore(_analytics_scr, _analytics_elem);
+})();
+// ]]>]"

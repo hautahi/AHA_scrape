@@ -40,6 +40,7 @@ import csv
 import unicodedata
 import requests
 import sys
+import OpenSSL
 #from time import sleep
 #from random import uniform
 
@@ -49,34 +50,46 @@ import sys
 
 def make_soup(url):
     '''
-    Function creates a soup object from url string
-    '''    
+    Function creates a soup object from url string. It also returns the url, 
+    which might have been redirected, and the status code of the request.
+    '''
     
-   #sleep(uniform(0,1))    
+    #sleep(uniform(0,1))
+    # Set user agent for request    
+    h = {"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36"}
+    
+    # If there is a redirect, check to see if it's a big one, then re-assign the url
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, timeout=5,headers=h,verify=True)
+        if response.url.startswith(url)==False:
+            url_re = response.url
+        else:
+            url_re = url
         html, stat = response.text, response.status_code
     except requests.exceptions.HTTPError:
-        html, stat = "", 0
+        html, stat, url_re = "", 0, url
     except requests.exceptions.Timeout:
-        html, stat = "", 1
+        html, stat, url_re = "", 1, url
     except requests.exceptions.ConnectionError:
-        html, stat = "", 2
+        html, stat, url_re = "", 2, url
     except requests.exceptions.RequestException:
-        html, stat = "", 3
-    # Might need to add more errors in here
+        html, stat, url_re = "", 3, url
+    except OpenSSL.SSL.Error:
+        html, stat, url_re = "", 4, url
         
     #print("Status Code: %s" % stat)
-    return BeautifulSoup(html, "lxml"), stat
+    return BeautifulSoup(html, "lxml"), stat, url_re
 
 def process(url):
     '''
     Function retrieves all links from a webpage excluding external links
     ''' 
-    soup, stat = make_soup(url)
+    soup, stat, url_redirect = make_soup(url)
     
-    # Get all links on page
-    links = [urlparse.urljoin(url,tag['href']) for tag in soup.findAll('a', href=True)]
+    # Get all links on page. 'urljoin' creates absolute links from relative
+    # ones for those that don't start with http://
+    links = [urlparse.urljoin(url_redirect,tag['href']) for tag in soup.findAll('a', href=True)]
+    links = [url_redirect] + links
     
     # Remove bookmark section from urls
     links1 = [x.split("#")[0] for x in links]    
@@ -85,12 +98,12 @@ def process(url):
     links1 = list(set(links1))
     
     # Remove outside links that don't start with url
-    links = [s for s in links1 if s.startswith(url) == True]
+    links = [s for s in links1 if s.startswith(url_redirect) == True]
     
     # Remove pdf links
     links_pdf = [s for s in links if s.endswith("pdf") != True]
       
-    return links_pdf, stat
+    return links_pdf, stat, url_redirect
 
 def get_pages(url):
     '''
@@ -99,13 +112,17 @@ def get_pages(url):
     '''     
     
     # Get links on main page
-    links, s = process(url)
+    links, s, url_redirect = process(url)
+    if url_redirect.startswith(url)==False or url.startswith(url_redirect)==False:
+        print "Request was redirected"
+        print "From:", url
+        print "To:", url_redirect
 
     # Get links on each subpage
     links1 = []   
     for i in links:
         #print(i)
-        x, s = process(i)        
+        x, s, r = process(i)        
         links1 += x
 
     links = links + links1
@@ -146,7 +163,7 @@ def count_keys(links,key,n):
         
         # Fetch website
         #print(l)
-        soup, stat = make_soup(l)
+        soup, stat, url_redirect = make_soup(l)
         
         # Save website content
         Webcontent.append([l,stat,[soup.get_text(separator=" ", strip=True)]]) 
@@ -250,13 +267,13 @@ def main():
         print('Retrieving Links...')
         links = get_pages(url)
         print("Retrieving links took %s seconds" % (time.time() - start_time))
-        time1 = time.time()
         
         # Get subpage content and count keywords
-        print('Counting keywords...')
+        print('Retrieving content and counting keywords...')
+        time1 = time.time()
         #links = links[0:20]  
         d, w = count_keys(links,keywords,n)
-        print("Counting keywords took %s seconds" % (time.time() - time1))
+        print("Retrieving content and counting keywords took %s seconds" % (time.time() - time1))
         
         # Save keyword counts
         d.insert(0,'hospital',name)
