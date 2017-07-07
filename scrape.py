@@ -97,12 +97,9 @@ def process(url):
     # Remove duplicates
     links1 = list(set(links1))
     
-    # Remove outside links that don't start with url
-    links = [s for s in links1 if s.startswith(url_redirect) == True]
-    
     # Remove pdf links
     links_pdf = [s for s in links if s.endswith("pdf") != True]
-      
+    
     return links_pdf, stat, url_redirect
 
 def get_pages(url):
@@ -112,11 +109,14 @@ def get_pages(url):
     '''     
     
     # Get links on main page
-    links, s, url_redirect = process(url)
+    links1, s, url_redirect = process(url)
     if url_redirect.startswith(url)==False or url.startswith(url_redirect)==False:
         print "Request was redirected"
         print "From:", url
         print "To:", url_redirect
+        
+    # Remove outside links that don't start with url
+    links = [x for x in links1 if x.startswith(url_redirect) == True]
 
     # Get links on each subpage
     links1 = []   
@@ -125,10 +125,13 @@ def get_pages(url):
         x, s, r = process(i)        
         links1 += x
 
-    links = links + links1
+    links1 = links + links1
 
     # Remove duplicates
-    links = list(set(links))
+    links1 = list(set(links1))
+    
+    # Remove outside links that don't start with url
+    links = [x for x in links1 if x.startswith(url_redirect) == True]
 
     return links
 
