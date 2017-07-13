@@ -1,5 +1,27 @@
 
-print "Code is Working..."
+'''
+This program scrapes content from US hospital websites
+Output is a csv file for each hospital with two columns
+    - one gives the url of the subpage
+    - the other gives the scraped html content
+
+The program calls a scrapy spider to crawl the websites.
+This should be placed and called from within the scrapy folder
+
+Usage: python main_scrape.py index_start index_end
+
+Author: hautahi
+Date: 13 June 2017
+
+To do:
+1. Tidy up the html output in the spider
+'''
+
+#-------------------------------------------------------------#
+# 1. Setup
+#-------------------------------------------------------------#
+
+print("Code is Working...")
 
 import subprocess
 import os
@@ -7,12 +29,11 @@ import pandas as pd
 from urlparse import urlparse
 import requests
 import sys
-import OpenSSL
+#import OpenSSL
 import time
-import sys
 
 #-------------------------------------------------------------#
-# 2. Define Functions
+# 2. Define Function
 #-------------------------------------------------------------#
 
 def main():
@@ -29,8 +50,8 @@ def main():
     s1, s2 = [int(x) for x in args]
 
     # Read the main input file
-    d_name = "../input/hospital_list.csv"
     print('Now reading the main input file...')
+    d_name = "../input/hospital_list.csv"
     d = pd.read_csv(d_name)
     d.columns = map(str.lower, d.columns)
     df = d[s1:s2]
@@ -44,7 +65,6 @@ def main():
     for url, name in zip(df["website"], df["hospital name"]):
 
         print('Processing hospital: ' +name+ ', index = %s' %i)
-        
         start_time = time.time()
                             
         # Check if there's a redirect
@@ -53,10 +73,13 @@ def main():
             if response.url.startswith(url)==False:
                         url_new = response.url
                         print("Request was redirected from: "+url)
-                            #print("From: "+url)
                         print("To: "+url_new)
             else:
                 url_new = url
+        except Exception:
+            url_new=url
+
+        '''
         except requests.exceptions.HTTPError:
                     url_new = url
         except requests.exceptions.Timeout:
@@ -67,6 +90,7 @@ def main():
                     url_new = url
         except OpenSSL.SSL.Error:
                     url_new = url
+        '''
 
         # Create the allowed_domain url 
         parsed_url = urlparse(url_new).netloc
@@ -91,10 +115,10 @@ def main():
         full = "url="+url_new
         FNULL = open(os.devnull,'w')
         retcode = subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-a",short_url,"-a",sub_url,"-o",fname,"-t","csv"],stdout=FNULL,stderr=subprocess.STDOUT)
-
+        
+        # Print duration and update loop variables
         print("--- %s seconds ---" % (time.time() - start_time))
         i += 1
-       # subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-a",short_url,"-o",fname,"-t","csv"])
 
 if __name__ == '__main__':
     main()
