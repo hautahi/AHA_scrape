@@ -12,21 +12,17 @@ class MyItem(Item):
 class MySpider(CrawlSpider):
 
     name = 'AHAscrape'
-    #allowed_domains = ['hautahi.com']
-    #start_urls = ['http://hautahi.com']
 
-    def __init__(self,al=None,*args,**kwargs):
+    def __init__(self,al=None,allow_subdom=None,*args,**kwargs):
         super(MySpider,self).__init__(*args,**kwargs)
         
-        start_urls = ['http://hautahi.com']
-        if 'url' in kwargs:
-            self.start_urls = [kwargs.get('url')]
-        else:
-            self.start_urls = stast_urls
-
+        # Declare the start url and allowed domains from inputs
+        self.start_urls = [kwargs.get('url')]
         self.allowed_domains = [al]
-
-    rules = (Rule(LinkExtractor(), callback='parse_url', follow=True), )
+        
+        # Declare rules which include limiting search to appropriate subdomains
+        MySpider.rules = (Rule(LinkExtractor(allow=(allow_subdom)), callback='parse_url', follow=True), )
+        super(MySpider,self)._compile_rules()
 
     def parse_url(self, response):
         item = MyItem()

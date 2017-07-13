@@ -14,6 +14,7 @@ import sys
 #-------------------------------------------------------------#
 # 2. Define Functions
 #-------------------------------------------------------------#
+
 def main():
 
     # First element of args is the function name
@@ -69,8 +70,14 @@ def main():
 
         # Create the allowed_domain url 
         parsed_url = urlparse(url_new).netloc
+        parsed_url = parsed_url.replace("www.","")
         short_url = "al="+parsed_url
         print("Allowed domain: " + parsed_url)
+
+        # Create subdomain allow
+        parsed_suburl = urlparse(url_new).path
+        sub_url = "allow_subdom="+parsed_suburl
+        print("Allowed subdomain: " + parsed_suburl)
 
         # Remove old file if it exists because scrapy automatically appends
         fname = "../output/scrapy_content/"+name+".csv"
@@ -83,7 +90,7 @@ def main():
         print("Scraping: " + url_new)
         full = "url="+url_new
         FNULL = open(os.devnull,'w')
-        retcode = subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-a",short_url,"-o",fname,"-t","csv"],stdout=FNULL,stderr=subprocess.STDOUT)
+        retcode = subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-a",short_url,"-a",sub_url,"-o",fname,"-t","csv"],stdout=FNULL,stderr=subprocess.STDOUT)
 
         print("--- %s seconds ---" % (time.time() - start_time))
         i += 1
