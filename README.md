@@ -1,6 +1,11 @@
 # AHA_scrape
 
-This repository contains web scraping code that visits hospital websites, extracts their subpages, downloads and saves their content, and searches for keywords.
+This repository contains web scraping code that visits hospital websites, extracts their subpages, downloads and saves their content, and searches for keywords. There are two different approaches.
+
+1. `Requests` + `Beautiful Soup`
+2. `Scrapy`
+
+## 1. `Requests` + `Beautiful Soup`
 
 - `scrape.py` is the main scraping code. It can be run from the terminal using the following command:
 
@@ -14,3 +19,11 @@ This repository contains web scraping code that visits hospital websites, extrac
 	- `keywords.csv`
 
 - `output` folder contains the resulting keyword search data. For each hospital, there are two output .csv files. One contains the keyword counts. The other contains the full downloaded text from each subpage.
+
+## 2. `Scrapy`
+
+- `AHAscrapy` contains the code for the scrapy spider.
+
+- `main_scrape.py` is the script used to call the spider.
+
+- `AHAscrapy/spiders/main.py` defines the spider 
