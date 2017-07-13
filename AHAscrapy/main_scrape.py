@@ -4,6 +4,7 @@ print "Code is Working..."
 import subprocess
 import os
 import pandas as pd
+from urlparse import urlparse
 
 #-------------------------------------------------------------#
 # 2. Define Functions
@@ -29,9 +30,14 @@ for url, name in zip(df["website"], df["hospital name"]):
         os.remove(fname)
     except OSError:
         pass
+
+	parsed_url = urlparse(url)
+	short_url = "al="+parsed_url.netloc
 	
 	# call scrapy and suppress output
-    FNULL = open(os.devnull,'w')
-    retcode = subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-o",fname,"-t","csv"],stdout=FNULL,stderr=subprocess.STDOUT)
-    print("Saving under: " + fname)
+   # FNULL = open(os.devnull,'w')
+   # retcode = subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-o",fname,"-t","csv"],stdout=FNULL,stderr=subprocess.STDOUT)
+   # print("Saving under: " + fname)
+
+    subprocess.call(["scrapy", "crawl", "AHAscrape", "-a", full,"-a",short_url,"-o",fname,"-t","csv"])
 

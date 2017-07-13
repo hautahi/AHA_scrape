@@ -15,7 +15,7 @@ class MySpider(CrawlSpider):
     #allowed_domains = ['hautahi.com']
     #start_urls = ['http://hautahi.com']
 
-    def __init__(self,*args,**kwargs):
+    def __init__(self,al=None,*args,**kwargs):
         super(MySpider,self).__init__(*args,**kwargs)
         
         start_urls = ['http://hautahi.com']
@@ -23,6 +23,8 @@ class MySpider(CrawlSpider):
             self.start_urls = [kwargs.get('url')]
         else:
             self.start_urls = stast_urls
+
+        self.allowed_domains = [al]
 
     rules = (Rule(LinkExtractor(), callback='parse_url', follow=True), )
 
