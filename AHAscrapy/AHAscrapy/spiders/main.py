@@ -28,5 +28,19 @@ class MySpider(CrawlSpider):
         item = MyItem()
         item['url'] = response.url
         soup = BeautifulSoup(response.body, "lxml")
-        item['content'] = soup.get_text(separator=" ", strip=True)
+
+		# kill all script and style elements
+        for script in soup(["script", "style"]):
+				script.extract()    # rip it out
+
+        text = soup.get_text(separator=" ", strip=True)
+        lines = (line.strip() for line in text.splitlines())
+		
+		# break multi-headlines into a line each
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+		# drop blank lines
+        text = '\n'.join(chunk for chunk in chunks if chunk)
+
+        #item['content'] = soup.get_text(separator=" ", strip=True)
+        item['content'] = text
         return item

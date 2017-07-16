@@ -14,7 +14,8 @@ Author: hautahi
 Date: 13 June 2017
 
 To do:
-1. Tidy up the html output in the spider
+When main page has subdomains and ends with a .aspx, this is being
+included in the allowed subdomain. Need to remove this.
 '''
 
 #-------------------------------------------------------------#
@@ -29,7 +30,6 @@ import pandas as pd
 from urlparse import urlparse
 import requests
 import sys
-#import OpenSSL
 import time
 
 #-------------------------------------------------------------#
@@ -61,10 +61,12 @@ def main():
     h = {"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36"}
 
     # Loop over hospitals
+    start_time1 = time.time()
     i = s1
     for url, name in zip(df["website"], df["hospital name"]):
 
         print('Processing hospital: ' +name+ ', index = %s' %i)
+        print(time.ctime(time.time()))
         start_time = time.time()
                             
         # Check if there's a redirect
@@ -78,19 +80,6 @@ def main():
                 url_new = url
         except Exception:
             url_new=url
-
-        '''
-        except requests.exceptions.HTTPError:
-                    url_new = url
-        except requests.exceptions.Timeout:
-                    url_new = url
-        except requests.exceptions.ConnectionError:
-                    url_new = url
-        except requests.exceptions.RequestException:
-                    url_new = url
-        except OpenSSL.SSL.Error:
-                    url_new = url
-        '''
 
         # Create the allowed_domain url 
         parsed_url = urlparse(url_new).netloc
@@ -119,6 +108,8 @@ def main():
         # Print duration and update loop variables
         print("--- %s seconds ---" % (time.time() - start_time))
         i += 1
+
+    print("---Total Job: %s seconds ---" % (time.time() - start_time1))
 
 if __name__ == '__main__':
     main()
