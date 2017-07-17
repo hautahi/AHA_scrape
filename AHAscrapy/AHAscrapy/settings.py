@@ -14,7 +14,7 @@ BOT_NAME = 'AHAscrapy'
 SPIDER_MODULES = ['AHAscrapy.spiders']
 NEWSPIDER_MODULE = 'AHAscrapy.spiders'
 
-DEPTH_LIMIT = 1
+DEPTH_LIMIT = 3
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'AHAscrapy (+http://www.yourdomain.com)'
