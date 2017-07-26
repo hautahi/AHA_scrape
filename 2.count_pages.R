@@ -1,43 +1,52 @@
 # This program counts the number of subpages for each hospital webscrape.
+# Usage: Rscript count_pages.R pathname outname start stop
+# pathname: path to input file directory
+# outname: name of output csv file
+# start: integer index for start of slice in files
+# stop: integer index for end of slice in files. If user wants to do the whole set,
+#	then enter a negative number
+
+# author: hautahi
+# date: July 26 2017
 
 # -----------------
 # Setup
 # -----------------
 
-# Read inputs from terminal
+# Read parameter inputs from terminal
 args <- commandArgs(TRUE)
-if (length(args)<1) {
-  start_index = 1
-} else {
-  start_index = as.numeric(args[1])
-}
+pathname = args[1]
+outname = args[2]
+start_index = as.numeric(args[3])
 
 # Load packages
 library(readr)
+library(dplyr)
 
 # -----------------
 # Define Functions
 # -----------------
 
-# Parameters
-pathname = "./output/content_depth1/"
-outname = "pagecounts_depth1.csv"
-
 # Import filenames
 files <- list.files(path=pathname, pattern="*.csv", full.names=T, recursive=FALSE)
 
 # Limit to files with size>0
-info = file.info(files) %>% arrange(-size)
+info = file.info(files)
 info = info[order(info$size),]
-files1 = rownames(info[info$size != 0, ])
-stop_index = length(files1)
-print(length(files1))
+files = rownames(info[info$size != 0, ])
+
+# Get stop index from terminal
+if (as.numeric(args[4])<0) {
+  stop_index = length(files)
+} else {
+  stop_index = as.numeric(args[4])
+}
 
 # Loop over files
 dat <- NULL
 start_time <- proc.time()
 i <- start_index
-for (f in files1[start_index:stop_index]) {
+for (f in files[start_index:stop_index]) {
   
   # Print every 100th iteration
   if(i %% 100==0) {

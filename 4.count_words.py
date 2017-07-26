@@ -2,7 +2,11 @@
 This program takes long html strings from text files as inputs.
 It counts keywords and stores the counts in csv file
 
-Bug: Seems to miss some of the counting and provides NA instead of blank
+Usage: python count_words.py start stop input_folder outname
+start: integer index for start of slice in files
+stop: integer index for end of slice in files
+input_folder: path to input files
+outname: name of output csv file
 
 author: hautahi
 date: July 17 2017
@@ -68,35 +72,25 @@ def count_keys(files,key,start,stop,input_folder):
     return d
     
 def main():
-    '''
-    Usage: python count_words.py start stop input_folder outname
-    start: integer index for start of slice in files
-    stop: integer index for end of slice in files
-    input_folder: path to input files
-    outname: name of output csv file
-    '''
+    
     start_time = time.time()    
     
     # The first element of args is the function name.
     args = sys.argv[1:]
     
     # Check to make sure the proper number of arguments exist.
-    if not args or len(args) < 2:
-        print('usage: python count_words.py start_index end_index')
+    if not args or len(args) < 4:
+        print('usage: python count_words.py start_index end_index input_folder outname')
         sys.exit(1)
     
     # Assign parameters
     start, stop = [int(x) for x in args[0:2]]
-    input_folder = args[2]
-    outname = args[3]
-    #input_folder = "./output/htmltext_depth3/"
-    #outname = "testing.csv"
+    input_folder, outname = args[2:4]
     
     # Load keywords    
     with open("./input/keywords.csv", 'rb') as f:
         key_list = list(csv.reader(f))
     key = [val for sublist in key_list for val in sublist]   
-    key = key[:-1]
 
     # Load content
     files = os.listdir(input_folder) 
